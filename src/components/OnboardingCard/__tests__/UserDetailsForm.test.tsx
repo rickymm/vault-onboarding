@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { UserDetailsForm } from "../UserDetailsForm";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { noop, renderWithProviders } from "@/shared/test-utils";
 import { screen, within } from "@testing-library/react";
 import { Card } from "@chakra-ui/react";
@@ -16,6 +16,44 @@ function renderUserDetailsForm(handleBack = noop) {
   );
 }
 
+async function fillUserDetails() {
+  const form = {
+    firstName: {
+      value: "Penny",
+      field: screen.getByRole("textbox", { name: "First Name" }),
+    },
+    lastName: {
+      value: "Parker",
+      field: screen.getByRole("textbox", { name: "Last Name" }),
+    },
+    phoneNumber: {
+      value: "1234567890",
+      field: screen.getByRole("textbox", { name: "Phone Number" }),
+    },
+    corporationNumber: {
+      value: "123456789",
+      field: screen.getByRole("textbox", {
+        name: "Corporation Number",
+      }),
+    },
+  };
+
+  const user = userEvent.setup();
+
+  await user.type(form.firstName.field, form.firstName.value);
+  await user.type(form.lastName.field, form.lastName.value);
+  await user.type(form.phoneNumber.field, form.phoneNumber.value);
+  await user.type(form.corporationNumber.field, form.corporationNumber.value);
+
+  expect(form.firstName.field).toHaveValue(form.firstName.value);
+  expect(form.lastName.field).toHaveValue(form.lastName.value);
+  expect(form.phoneNumber.field).toHaveValue(form.phoneNumber.value);
+  expect(form.corporationNumber.field).toHaveValue(
+    form.corporationNumber.value,
+  );
+
+  return { form };
+}
 const missingError = "This field is required";
 
 describe("UserDetailsForm", () => {
@@ -49,41 +87,9 @@ describe("UserDetailsForm", () => {
   });
 
   it("Should clear the fields when 'Reset' button is clicked", async () => {
-    const user = userEvent.setup();
     renderUserDetailsForm();
-
-    const form = {
-      firstName: {
-        value: "Penny",
-        field: screen.getByRole("textbox", { name: "First Name" }),
-      },
-      lastName: {
-        value: "Parker",
-        field: screen.getByRole("textbox", { name: "Last Name" }),
-      },
-      phoneNumber: {
-        value: "1234567890",
-        field: screen.getByRole("textbox", { name: "Phone Number" }),
-      },
-      corporationNumber: {
-        value: "123456789",
-        field: screen.getByRole("textbox", {
-          name: "Corporation Number",
-        }),
-      },
-    };
-
-    await user.type(form.firstName.field, form.firstName.value);
-    await user.type(form.lastName.field, form.lastName.value);
-    await user.type(form.phoneNumber.field, form.phoneNumber.value);
-    await user.type(form.corporationNumber.field, form.corporationNumber.value);
-
-    expect(form.firstName.field).toHaveValue(form.firstName.value);
-    expect(form.lastName.field).toHaveValue(form.lastName.value);
-    expect(form.phoneNumber.field).toHaveValue(form.phoneNumber.value);
-    expect(form.corporationNumber.field).toHaveValue(
-      form.corporationNumber.value,
-    );
+    const user = userEvent.setup();
+    const { form } = await fillUserDetails();
 
     await user.click(screen.getByRole("button", { name: "Reset" }));
 
@@ -171,17 +177,71 @@ describe("UserDetailsForm", () => {
       expect(phoneNumberElement).toHaveValue(valid);
     });
 
-    // it("Should show error message on 'Corporation Number' when validation returns as invalid", async () => {
-    //   const errorMessage = "Invalid corporation number";
-    //   vi.spyOn(api, "useFetch").mockImplementation(
-    //     () =>
-    //       ({
-    //         data: { valid: false, message: errorMessage },
-    //       }) as never,
-    //   );
-    //   renderUserDetailsForm();
+    it("Should show error message on 'Corporation Number' when validation returns as invalid", async () => {
+      const errorMessage = "Invalid corporation number";
+      vi.spyOn(api, "useFetch").mockImplementation(
+        () =>
+          ({
+            data: { valid: false, message: errorMessage },
+          }) as never,
+      );
+      renderUserDetailsForm();
 
-    //   expect(await screen.findByText(errorMessage)).toBeVisible();
-    // });
+      expect(await screen.findByText(errorMessage)).toBeVisible();
+    });
+  });
+
+  describe("Form validation", () => {
+    afterEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("Should call api with correct values", async () => {
+      const queryDataSpy = vi.fn();
+      vi.spyOn(api, "useFetch").mockImplementation(
+        () =>
+          ({
+            queryData: queryDataSpy,
+            data: {},
+          }) as never,
+      );
+      const user = userEvent.setup();
+      renderUserDetailsForm();
+      const { form } = await fillUserDetails();
+
+      expect(queryDataSpy).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole("button", { name: "Submit" }));
+
+      // First call = corporation number, Last call = send user details
+      expect(queryDataSpy).toHaveBeenLastCalledWith({
+        url: "profile-details",
+        method: "POST",
+        body: {
+          firstName: form.firstName.value,
+          lastName: form.lastName.value,
+          phone: `+1${form.phoneNumber.value}`,
+          corporationNumber: form.corporationNumber.value,
+        },
+      });
+    });
+
+    it("Should show error message when form validation returns invalid message", async () => {
+      const errorMessage = "Missing required fields";
+      vi.spyOn(api, "useFetch").mockImplementation(
+        () =>
+          ({
+            queryData: vi.fn(),
+            data: { message: errorMessage },
+          }) as never,
+      );
+      const user = userEvent.setup();
+      renderUserDetailsForm();
+      await fillUserDetails();
+
+      await user.click(screen.getByRole("button", { name: "Submit" }));
+
+      expect(await screen.findByText(errorMessage)).toBeVisible();
+    });
   });
 });

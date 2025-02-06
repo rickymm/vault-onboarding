@@ -7,11 +7,11 @@ const vitestConfig = defineVitestConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: ["./testSetup.ts"],
-    mockReset: true,
+    setupFiles: "./setup-test.ts",
   },
 });
 export default vitestConfig;

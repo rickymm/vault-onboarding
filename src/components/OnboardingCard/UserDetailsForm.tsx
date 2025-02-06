@@ -166,7 +166,7 @@ export function UserDetailsForm({
               )}
             </Button>
             {(isError || data?.message) && (
-              <Box color="red" fontWeight="semibold" fontSize="sm">
+              <Box color="red" fontSize="sm">
                 {data?.message ??
                   "Something went wrong when trying to send your data."}
               </Box>

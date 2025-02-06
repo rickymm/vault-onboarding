@@ -42,6 +42,7 @@
     "jsdom": "^26.0.0",
     "playwright": "^1.50.1",
     "prettier": "^3.4.2",
+    "resize-observer-polyfill": "^1.5.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5",
