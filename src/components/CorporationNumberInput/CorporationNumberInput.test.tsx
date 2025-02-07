@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { CorporationNumberInput } from "./CorporationNumberInput";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderWithProviders } from "@/shared/test-utils";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
