@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 import { OnboardingCard } from "./components/OnboardingCard/OnboardingCard";
 import { ColorModeButton } from "./components/ui/color-mode";
 
@@ -11,7 +11,9 @@ function App() {
         position="absolute"
         data-testid="color-mode-button"
       />
-      <OnboardingCard />
+      <Container>
+        <OnboardingCard />
+      </Container>
     </Box>
   );
 }
