@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom/vitest";
 import { OnboardingCard } from "../OnboardingCard";
 import { describe, it, expect } from "vitest";
 import { renderWithProviders } from "@/shared/test-utils";

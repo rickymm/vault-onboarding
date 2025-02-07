@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom/vitest";
 import { CorporationNumberInput } from "./CorporationNumberInput";
 import { describe, it, expect, vi } from "vitest";
 import { renderWithProviders } from "@/shared/test-utils";

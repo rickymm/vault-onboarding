@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom/vitest";
 import { UserDetailsForm } from "../UserDetailsForm";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { noop, renderWithProviders } from "@/shared/test-utils";
@@ -241,7 +240,8 @@ describe("UserDetailsForm", () => {
 
       await user.click(screen.getByRole("button", { name: "Submit" }));
 
-      expect(await screen.findByText(errorMessage)).toBeVisible();
+      const errorContainer = await screen.findByTestId("validation-error");
+      expect(within(errorContainer).getByText(errorMessage)).toBeVisible();
     });
   });
 });

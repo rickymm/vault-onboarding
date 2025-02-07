@@ -166,7 +166,12 @@ export function UserDetailsForm({
               )}
             </Button>
             {(isError || data?.message) && (
-              <Box color="red" fontSize="sm">
+              <Box
+                as="span"
+                color="red"
+                fontSize="sm"
+                data-testid="validation-error"
+              >
                 {data?.message ??
                   "Something went wrong when trying to send your data."}
               </Box>

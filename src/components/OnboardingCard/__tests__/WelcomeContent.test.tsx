@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom/vitest";
 import { WelcomeContent } from "../WelcomeContent";
 import { describe, it, expect, vi } from "vitest";
 import { noop, renderWithProviders } from "@/shared/test-utils";
